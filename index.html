@@ -3,43 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <title>Submit to Google Sheets</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2em;
+      background: #f5f5f5;
+    }
+    form {
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+    #responseMsg {
+      text-align: center;
+      margin-top: 1em;
+    }
+  </style>
 </head>
 <body>
-  <div class="form-container">
-    <h1>Contact Us</h1>
-    <form id="myForm">
-      <input type="text" name="name" placeholder="Your Name" required>
-      <input type="email" name="email" placeholder="Your Email" required>
-      <textarea name="message" placeholder="Your Message" rows="5"></textarea>
-      <button type="submit">Submit</button>
-    </form>
+  <form id="myForm">
+    <input type="text" name="name" placeholder="Your name" required>
+    <input type="email" name="email" placeholder="Your email" required>
+    <textarea name="message" placeholder="Your message"></textarea>
+    <button type="submit">Submit</button>
     <p id="responseMsg"></p>
-  </div>
+  </form>
 
   <script>
-    document.getElementById('myForm').addEventListener('submit', function(e) {
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwKgRJTcKMSDfD4sa_yVVUoi3rjOiJhkegt23Sx4zfggproHtrFYoGkaB7A7pZBN2kU/exec";
+    const form = document.getElementById("myForm");
+    const responseMsg = document.getElementById("responseMsg");
+
+    form.addEventListener("submit", e => {
       e.preventDefault();
-
-      const formData = {
-        name: this.name.value,
-        email: this.email.value,
-        message: this.message.value
-      };
-
-      fetch('https://script.google.com/macros/s/AKfycbwKgRJTcKMSDfD4sa_yVVUoi3rjOiJhkegt23Sx4zfggproHtrFYoGkaB7A7pZBN2kU/exec', {
-        method: 'POST',
-        body: JSON.stringify(formData),
-        headers: { "Content-Type": "application/json" }
+      const formData = new FormData(form);
+      fetch(scriptURL, {
+        method: "POST",
+        body: formData,
+        mode: "no-cors" // Prevents CORS error
       })
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("responseMsg").textContent = "Submitted successfully!";
-        this.reset();
+      .then(() => {
+        responseMsg.textContent = "Submitted successfully!";
+        form.reset();
       })
-      .catch(err => {
-        document.getElementById("responseMsg").textContent = "Submission failed. Try again.";
-        console.error("Error:", err);
+      .catch(error => {
+        console.error("Error!", error.message);
+        responseMsg.textContent = "Submission failed.";
       });
     });
   </script>
